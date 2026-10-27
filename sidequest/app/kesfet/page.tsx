@@ -19,8 +19,13 @@ export default async function Kesfet({ searchParams }: { searchParams: Promise<{
   const liste = (data ?? []) as unknown as Satir[];
   const sonraki = liste.length > SAYFA;
   const gorunen = liste.slice(0, SAYFA);
-  const href = (n: number) => `/kesfet?${new URLSearchParams({ ...(temiz && { q: temiz }), ...(kategori && { kategori }), sayfa: String(n) })}`;
-
+    const href = (n: number) => {
+    const p = new URLSearchParams();
+    if (temiz) p.set("q", temiz);
+    if (kategori) p.set("kategori", kategori);
+    p.set("sayfa", String(n));
+    return `/kesfet?${p}`;
+  };
   return (
     <section className="pt-12">
       <h1 className="text-3xl font-semibold">Görevleri keşfet</h1>
