@@ -1,16 +1,29 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 
+const KORUMALI = ["/panel", "/gorevlerim", "/gorev-olustur", "/bildirimler", "/ayarlar", "/moderasyon"];
 type CerezListesi = { name: string; value: string; options: CookieOptions }[];
 
-export async function createClient() {
-  const store = await cookies();
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+export async function middleware(req: NextRequest) {
+  let res = NextResponse.next({ request: req });
+  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
-      getAll: () => store.getAll(),
+      getAll: () => req.cookies.getAll(),
       setAll: (list: CerezListesi) => {
-        try { list.forEach(({ name, value, options }) => store.set(name, value, options)); } catch { /* Server Component */ }
+        list.forEach(({ name, value }) => req.cookies.set(name, value));
+        res = NextResponse.next({ request: req });
+        list.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
       },
     },
   });
+  const { data: { user } } = await supabase.auth.getUser();
+  const path = req.nextUrl.pathname;
+  if (!user && KORUMALI.some((p) => path.startsWith(p))) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/giris";
+    url.searchParams.set("donus", path);
+    return NextResponse.redirect(url);
+  }
+  return res;
 }
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
