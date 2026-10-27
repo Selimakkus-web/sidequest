@@ -1,0 +1,9 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+:root {
+  --zemin: #F7F7F2; --orman: #263D32; --adacayi: #8DA18C;
+  --metin: #242824; --soluk: #70766F; --cizgi: #E4E5DE; --yuzey: #EFEFE8;
+}
+body { background: var(--zemin); color: var(--metin); font-family: var(--font-govde), system-ui, sans-serif; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--font-baslik), Georgia, serif; line-height: 1.15; }
+:focus-visible { outline: 2px solid var(--orman); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
