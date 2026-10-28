@@ -12,7 +12,7 @@ export default async function GorevSayfasi({ params, searchParams }: { params: P
   const { id } = await params;
   const { davet = "" } = await searchParams;
   const supabase = await createClient();
-  const { data } = await supabase.from("quests").select("*, profiles(display_name,username)").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("quests").select("*, profiles!creator_id(display_name,username)").eq("id", id).maybeSingle();
   if (!data) notFound();
   const g = data as unknown as Gorev;
   const { data: { user } } = await supabase.auth.getUser();
@@ -21,7 +21,7 @@ export default async function GorevSayfasi({ params, searchParams }: { params: P
   const { count } = await supabase.from("quest_members").select("*", { count: "exact", head: true }).eq("quest_id", id).neq("status", "left");
   const { data: uyelik } = user ? await supabase.from("quest_members").select("status").eq("quest_id", id).eq("user_id", user.id).maybeSingle() : { data: null };
   const { data: basvurum } = user ? await supabase.from("quest_applications").select("status").eq("quest_id", id).eq("user_id", user.id).maybeSingle() : { data: null };
-  const bekleyenler = sahibi ? ((await supabase.from("quest_applications").select("id,note,profiles(display_name,username)").eq("quest_id", id).eq("status", "pending")).data ?? []) as unknown as Basvuru[] : [];
+  const bekleyenler = sahibi ? ((await supabase.from("quest_applications").select("id,note,profiles!user_id(display_name,username)").eq("quest_id", id).eq("status", "pending")).data ?? []) as unknown as Basvuru[] : [];
   const davetKodu = sahibi && g.visibility === "private" ? (await supabase.from("quest_invites").select("code").eq("quest_id", id).maybeSingle()).data?.code : null;
   const aktif = uyelik?.status === "active";
 
