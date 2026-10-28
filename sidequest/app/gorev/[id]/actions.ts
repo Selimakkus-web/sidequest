@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { basvuruSemasi } from "@/lib/validation";
 
@@ -31,3 +32,14 @@ export async function basvur(_: Sonuc, fd: FormData): Promise<Sonuc> {
   return cagir("apply_to_quest", { p_quest: s(fd, "id"), p_note: p.data.note, p_code: s(fd, "code") || null }, "Başvurunuz gönderildi.");
 }
 export async function karar(_: Sonuc, fd: FormData) { return cagir("decide_application", { p_app: s(fd, "id"), p_approve: s(fd, "onay") === "1" }, "Karar kaydedildi."); }
+
+export async function sil(_: Sonuc, fd: FormData): Promise<Sonuc> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { hata: "Önce giriş yapmalısınız." };
+  const { data, error } = await supabase.from("quests").delete().eq("id", s(fd, "id")).eq("creator_id", user.id).select("id");
+  if (error || !data?.length) return { hata: "Görev silinemedi. Bu işlem için yetkiniz olmayabilir." };
+  revalidatePath("/panel");
+  revalidatePath("/kesfet");
+  redirect("/panel");
+}
