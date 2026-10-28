@@ -41,7 +41,7 @@ export default async function Kesfet({ searchParams }: { searchParams: Promise<{
   };
   return (
     <section className="pt-12">
-      <h1 className="text-3xl font-semibold">Görevleri keşfet</h1>
+      <p className="mt-1 text-xs text-soluk">Veritabanından gelen: {liste.length} görev</p>
       <form className="mt-6 flex flex-wrap gap-3" role="search">
         <label className="sr-only" htmlFor="q">Ara</label>
         <input id="q" name="q" defaultValue={q} placeholder="Görev ara" className="min-w-0 flex-1 rounded border border-cizgi bg-white px-3 py-2" />
