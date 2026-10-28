@@ -10,7 +10,7 @@ export default async function Kesfet({ searchParams }: { searchParams: Promise<{
   const { q = "", kategori = "", sayfa = "1" } = await searchParams;
   const s = Math.max(1, parseInt(sayfa) || 1);
   const supabase = await createClient();
-  let sorgu = supabase.from("quests").select("id,title,description,category,join_mode,deadline,profiles(display_name),quest_members(count)")
+  let sorgu = supabase.from("quests").select("id,title,description,category,join_mode,deadline,profiles!creator_id(display_name),quest_members(count)")
     .eq("visibility", "public").eq("status", "open").order("created_at", { ascending: false }).range((s - 1) * SAYFA, s * SAYFA);
   const temiz = q.replace(/[%,()]/g, " ").trim();
   if (temiz) sorgu = sorgu.or(`title.ilike.%${temiz}%,description.ilike.%${temiz}%`);
@@ -19,7 +19,7 @@ export default async function Kesfet({ searchParams }: { searchParams: Promise<{
   const liste = (data ?? []) as unknown as Satir[];
   const sonraki = liste.length > SAYFA;
   const gorunen = liste.slice(0, SAYFA);
-    const href = (n: number) => {
+  const href = (n: number) => {
     const p = new URLSearchParams();
     if (temiz) p.set("q", temiz);
     if (kategori) p.set("kategori", kategori);
