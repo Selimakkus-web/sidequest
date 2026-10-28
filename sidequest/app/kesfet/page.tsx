@@ -15,7 +15,8 @@ export default async function Kesfet({ searchParams }: { searchParams: Promise<{
   const temiz = q.replace(/[%,()]/g, " ").trim();
   if (temiz) sorgu = sorgu.or(`title.ilike.%${temiz}%,description.ilike.%${temiz}%`);
   if ((KATEGORILER as readonly string[]).includes(kategori)) sorgu = sorgu.eq("category", kategori);
-  const { data } = await sorgu;
+  const { data, error } = await sorgu;
+  if (error) return <p role="alert" className="pt-12 text-red-800">Liste yüklenemedi ({error.code}: {error.message})</p>;
   const liste = (data ?? []) as unknown as Satir[];
   const sonraki = liste.length > SAYFA;
   const gorunen = liste.slice(0, SAYFA);
